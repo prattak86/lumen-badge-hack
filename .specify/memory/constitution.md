@@ -1,50 +1,47 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# LUMEN Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Simulation-first, hardware-honest
+Build and validate behavior in a browser emulator before deploying to the GitHub Universe badge. Hardware features, memory budgets, display geometry, SDK APIs, and deployment steps MUST be verified from official badge sources; unverified capabilities MUST be labeled assumptions and mocked behind adapters.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Deterministic portable behavior
+Personality, mood, quests, encounters, dialogue, and progression MUST use an event-driven state model with an injectable clock and seeded randomness. Rendering, persistence, and hardware I/O MUST be separated from behavior. If browser and firmware cannot share source code, they MUST share versioned event/state contracts and golden fixtures.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Character-first experience
+LUMEN is an original expressive cartoon lantern and a sarcastic, emotionally needy SRE. His flame, face, dialogue, and animations MUST respond coherently to state. Neglect escalates through Operational, Neglected, I'M FINE (brief red flash and forced recovery), Purple Protocol, and Chaotic Orchestrator. Recovery and cooldowns MUST be supported. Humor MUST remain contextual and non-repetitive.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Offline-first, bounded and consentful
+Core functionality MUST work offline. Local progress MUST persist safely within available storage. Badge-to-badge encounters MUST be opt-in, rate-limited, and avoid collecting personal information by default. Wi-Fi or cloud functionality is optional, with no embedded credentials or unexpected network traffic.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Safe simulated mischief
+Purple Protocol MAY joke about disabling branch protections, deleting branches, or force-pushing. Such suggestions MUST remain fictional dialogue or isolated simulations. No actual destructive Git operations, unauthorized configuration changes, harassment, or conference disruption. User-controlled escape/reset and clear fictional context are required.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VI. Tests and observability
+Every state transition, mood threshold, cooldown, clock-dependent effect, and event contract MUST have automated tests. Emulator MUST expose mock inputs, state inspector, virtual clock, event history, scenario replay, and deterministic fixture export. New functionality requires a verifiable acceptance scenario.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### VII. Incremental delivery and maintainability
+Prefer small, independently demonstrable vertical slices. Avoid premature backend services, unnecessary dependencies, and speculative hardware drivers. Content SHOULD be data-driven and versioned. Architectural deviations MUST be documented with tradeoffs.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Technology and Product Constraints
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- Browser emulator: prefer TypeScript, Vite, React and lightweight SVG/Canvas rendering, subject to the implementation plan.
+- Firmware runtime: select only after verifying actual badge documentation; do not claim shared TypeScript runtime on a MicroPython badge.
+- Core event schema: timestamp, type, payload, origin, and optional deterministic seed; explicitly version contracts.
+- Persistence and networking: use adapters with in-memory mocks for initial development.
+- Accessibility: readable small-display text, clear visual contrast, reduced-motion option in emulator.
+- Privacy: minimize stored encounter data; never store tokens or personally identifying encounter payloads by default.
+
+## Spec-Driven Workflow and Quality Gates
+
+Use the existing Spec Kit installation; do not overwrite generated templates, scripts, agents, or prompts. For each feature: specify user outcomes and acceptance scenarios, clarify uncertainties, plan architecture and research, decompose tasks, analyze consistency, implement, test, and converge. Prefer first feature: `001-lumen-emulator-foundation`.
+
+Milestone 1 MUST demonstrate an animated lantern, deterministic emotional transitions, red-faced I'M FINE sequence, Purple Protocol, mocked controls, time travel, and event inspector in a running browser emulator. Document any firmware assumptions explicitly.
+
+PRs MUST report tests run, scope exclusions, unresolved hardware facts, and constitution compliance. Do not claim tests pass unless actually executed.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution governs feature specs, plans, tasks, and implementations. Changes require an explained rationale, updated version, and review. Breaking changes to state/event contracts require fixture updates and migration notes. Prefer the simplest compliant implementation.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-10-25 | **Last Amended**: 2026-10-25
