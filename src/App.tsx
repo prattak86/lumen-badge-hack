@@ -76,6 +76,9 @@ export default function App() {
 
   const moodLabel = moodNames[state.mood];
   const events = useMemo(() => latestEvents(state), [state]);
+  const latestAnimation = [...state.events]
+    .reverse()
+    .find((item) => item.type === "animation" && item.message !== "under-breath-muttering");
   const activeScenario = (id: string) => {
     const scenario = scenarios.find((item) => item.id === id);
     if (!scenario) return;
@@ -124,7 +127,7 @@ export default function App() {
         <div className="brand-lockup">
           <div className="brand-mark">L</div>
           <div>
-            <p className="eyebrow">LIGHTWEIGHT UNSTABLE MANAGEMENT</p>
+            <p className="eyebrow"><span className="company-brand">LANTERN</span> // LIGHTWEIGHT UNSTABLE MANAGEMENT</p>
             <h1>LUMEN <span>Emulator</span></h1>
           </div>
         </div>
@@ -151,11 +154,21 @@ export default function App() {
                 <span className={`mood-dot mood-dot-${state.mood}`} />
                 {moodLabel}
               </div>
-              <Lantern mood={state.mood} sequence={state.sequence} reducedMotion={reducedMotion} />
+              <Lantern
+                mood={state.mood}
+                sequence={state.sequence}
+                reducedMotion={reducedMotion}
+                animation={latestAnimation?.message ?? "idle"}
+                animationId={latestAnimation?.id ?? 0}
+                muttering={Boolean(state.mutter)}
+              />
               <div className="screen-dialogue">
                 <p>{state.dialogue}</p>
                 {state.mutter && <small>{state.mutter}</small>}
               </div>
+              {(state.mood === "purple" || state.mood === "chaotic") && (
+                <div className="fictional-banner">FICTIONAL DIALOGUE · DO NOT EXECUTE</div>
+              )}
               {state.sequence === "anger" && <div className="screen-alert">UNHANDLED FEELING</div>}
               {state.activeQuest && <div className="quest-chip">QUEST · {state.activeQuest}</div>}
               {state.encounter && <div className="quest-chip encounter-chip">MERGE CONFLICT · ACTIVE</div>}

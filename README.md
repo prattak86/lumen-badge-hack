@@ -28,8 +28,12 @@ npm run preview
 
 - Independent, deterministic TypeScript behavior engine with bounded attributes,
   seeded dialogue selection, time-based resentment, recovery, and five moods.
-- Animated original lantern SVG, flame, facial expressions, timed red-face
-  "I'M FINE" outburst, forced-composure line, and Purple Protocol.
+- Animated, expressive lantern SVG with teal-and-amber Lantern brand cues,
+  gesture animations, flame, and mood-specific facial expressions.
+- A seeded phrase bank with 12+ selectable lines for most moods, no immediate
+  repeats, and muttered asides.
+- Timed red-face "I'M FINE" outburst, forced-composure line, and Purple
+  Protocol.
 - Local badge display at the verified 320×240 aspect ratio, plus emotion
   controls, mock hardware events, accelerated/manual time, quests, encounters,
   event history export/replay, and repeatable scenarios.
@@ -39,7 +43,8 @@ This is not a complete conference game: badge firmware, real attendee
 multiplayer, IR/BLE protocols, Wi-Fi, case LED output, and deployment tooling
 are not implemented. The browser controls for these are mocks only. See
 [`docs/hardware-compatibility.md`](docs/hardware-compatibility.md) and
-[`docs/architecture.md`](docs/architecture.md).
+[`docs/architecture.md`](docs/architecture.md). Character and branding
+direction is in [`docs/character-design.md`](docs/character-design.md).
 
 ## Hardware deployment research
 

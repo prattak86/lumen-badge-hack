@@ -100,18 +100,31 @@ function deriveMood(state: LumenState): Mood {
 function setMood(state: LumenState, mood: Mood) {
   if (state.mood === mood) return;
   state.mood = mood;
+  const animationByMood: Partial<Record<Mood, string>> = {
+    operational: "happy-bounce",
+    neglected: "suspicious-glance",
+    purple: "sinister-smile",
+    chaotic: "theatrical-pulse",
+  };
+  const animation = animationByMood[mood];
+  if (animation) event(state, "animation", animation);
   event(state, "mood", `MOOD → ${mood.toUpperCase()}`, mood);
 }
 
 function speak(state: LumenState) {
   const options = dialogue[state.mood];
-  state.dialogue = choose(state, options.lines);
+  const freshLines = options.lines.filter((line) => line !== state.dialogue);
+  state.dialogue = choose(state, freshLines.length ? freshLines : options.lines);
+  const freshMutters = options.mutters.filter((line) => line !== state.mutter);
   state.mutter =
     state.mood === "fine" || state.attributes.resentment >= 40
-      ? choose(state, options.mutters)
+      ? choose(state, freshMutters.length ? freshMutters : options.mutters)
       : null;
   event(state, "dialogue", `DIALOGUE · ${state.dialogue}`, state.mood);
-  if (state.mutter) event(state, "mutter", `UNDER BREATH · ${state.mutter}`, state.mood);
+  if (state.mutter) {
+    event(state, "animation", "under-breath-muttering");
+    event(state, "mutter", `UNDER BREATH · ${state.mutter}`, state.mood);
+  }
 }
 
 function beginFine(state: LumenState, force = false) {
@@ -122,7 +135,7 @@ function beginFine(state: LumenState, force = false) {
   state.lastFineAt = state.nowMs;
   state.dialogue = "SYSTEM ALERT: FEELINGS DETECTED";
   state.mutter = null;
-  event(state, "animation", "ANGRY RED-FACE SEQUENCE · START", "fine");
+  event(state, "animation", "angry-red-face", "fine");
   event(state, "mood", "MOOD → I'M FINE", "fine");
 }
 
@@ -134,7 +147,7 @@ function finishFine(state: LumenState) {
   state.sequenceStartedAt = sequenceEndedAt;
   state.dialogue = "I'M FINE........ 😒";
   state.mutter = "System logs indicate otherwise.";
-  event(state, "animation", "FORCED COMPOSURE · I'M FINE........ 😒", "fine");
+  event(state, "animation", "fine-composure", "fine");
   event(state, "dialogue", `DIALOGUE · ${state.dialogue}`, "fine");
 }
 
@@ -252,6 +265,7 @@ export function reduceLumen(previous: LumenState, input: EngineInput): LumenStat
       state.attributes.stability = clamp(state.attributes.stability + 3);
       state.attributes.flameEnergy = clamp(state.attributes.flameEnergy + 2);
       event(state, "input", `INTERACTION · ${input.kind}`);
+      event(state, "animation", "happy-bounce");
       if (state.mood === "fine") {
         completeFine(state);
       } else {
@@ -261,6 +275,9 @@ export function reduceLumen(previous: LumenState, input: EngineInput): LumenStat
       break;
     case "setAttribute":
       updateAttribute(state, input.attribute, input.value);
+      if (input.attribute === "flameEnergy" && input.value <= 15) {
+        event(state, "animation", "sleepy");
+      }
       break;
     case "forceMood":
       if (input.mood === "fine") beginFine(state, true);
@@ -296,7 +313,7 @@ export function reduceLumen(previous: LumenState, input: EngineInput): LumenStat
       state.attributes.stability = Math.max(9, Math.min(45, state.attributes.stability));
       setMood(state, "purple");
       speak(state);
-      event(state, "animation", "PURPLE FLAME TRANSITION");
+      event(state, "animation", "purple-flame-transition");
       break;
     case "recover":
       state.attributes.resentment = 0;
@@ -311,14 +328,17 @@ export function reduceLumen(previous: LumenState, input: EngineInput): LumenStat
       break;
     case "hardware":
       event(state, "hardware", `${input.kind.toUpperCase()}${input.detail ? ` · ${input.detail}` : ""}`);
-      if (input.kind === "consultant-timer") speak(state);
+      if (input.kind === "consultant-timer") {
+        speak(state);
+        event(state, "animation", "sarcastic-eye-roll");
+      }
       if (/button|touch|shake|tilt|rotate/i.test(input.kind)) {
         state.lastInteractionAt = state.nowMs;
         state.attributes.resentment = clamp(state.attributes.resentment - 2);
       }
       if (input.kind === "shake") {
         state.dialogue = "Please stop stress-testing the lantern.";
-        event(state, "animation", "SHAKE · RECOIL");
+        event(state, "animation", "shake-recoil");
       }
       break;
     case "quest":

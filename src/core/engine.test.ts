@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { dialogue } from "./content";
 import { createInitialState, reduceLumen, replayInputs, restoreState } from "./engine";
 import type { EngineInput } from "./types";
 
@@ -91,5 +92,17 @@ describe("LUMEN behavioral engine", () => {
       type: "animation",
       payload: { message: expect.any(String) },
     });
+  });
+
+  it("uses a broad phrase bank and avoids immediate repetition", () => {
+    expect(dialogue.operational.lines.length).toBeGreaterThanOrEqual(12);
+    expect(dialogue.neglected.lines.length).toBeGreaterThanOrEqual(12);
+    expect(dialogue.purple.lines.length).toBeGreaterThanOrEqual(12);
+    expect(dialogue.chaotic.lines.length).toBeGreaterThanOrEqual(12);
+
+    let state = reduceLumen(createInitialState(), { type: "interact", kind: "touch" });
+    const first = state.dialogue;
+    state = reduceLumen(state, { type: "interact", kind: "touch" });
+    expect(state.dialogue).not.toBe(first);
   });
 });
