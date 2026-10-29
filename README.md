@@ -28,12 +28,15 @@ npm run preview
 
 - Independent, deterministic TypeScript behavior engine with bounded attributes,
   seeded dialogue selection, time-based resentment, recovery, and five moods.
-- Animated, expressive lantern SVG with teal-and-amber Lantern brand cues,
-  gesture animations, flame, and mood-specific facial expressions.
+- Animated, expressive 3D-styled lantern SVG with the supplied Lantern
+  teal-and-amber identity, orbital-shard wordmark, gesture animations, flame,
+  and mood-specific facial expressions.
 - A seeded phrase bank with 12+ selectable lines for most moods, no immediate
   repeats, and muttered asides.
 - Timed red-face "I'M FINE" outburst, forced-composure line, and Purple
   Protocol.
+- Guided conversational conference jobs with multiple-choice answers,
+  mood-specific reactions, attribute changes, and XP rewards.
 - Local badge display at the verified 320×240 aspect ratio, plus emotion
   controls, mock hardware events, accelerated/manual time, quests, encounters,
   event history export/replay, and repeatable scenarios.

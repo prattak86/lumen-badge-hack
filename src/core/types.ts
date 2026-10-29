@@ -36,6 +36,10 @@ export interface LumenState {
   mutter: string | null;
   activeQuest: string | null;
   questStatus: "idle" | "active" | "complete" | "failed";
+  conversationId: string | null;
+  conversationQuestion: number;
+  conversationStatus: "idle" | "active" | "complete";
+  conversationResponse: string | null;
   encounter: string | null;
   events: LumenEvent[];
   inputHistory: RecordedInput[];
@@ -51,6 +55,7 @@ export type EngineInputPayload =
   | { type: "recover" }
   | { type: "hardware"; kind: string; detail?: string }
   | { type: "quest"; action: "start" | "complete" | "fail"; id?: string }
+  | { type: "conversation"; action: "start" | "answer"; jobId?: string; choiceId?: string }
   | { type: "encounter"; action: "start" | "complete"; id?: string };
 
 export type EngineInput = EngineInputPayload & { origin?: string };

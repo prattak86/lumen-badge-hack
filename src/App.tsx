@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { quests } from "./core/content";
+import { conversationJobs, quests } from "./core/content";
 import { createInitialState, latestEvents, reduceLumen, replayInputs, restoreState } from "./core/engine";
 import type { Attribute, EngineInput, LumenState, Mood } from "./core/types";
 import { Lantern } from "./components/Lantern";
+import { LanternLogo } from "./components/LanternLogo";
 import { scenarios } from "./scenarios";
 
 const STORAGE_KEY = "lumen-emulator-state-v1";
@@ -47,6 +48,7 @@ export default function App() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [storageError, setStorageError] = useState(false);
   const [selectedQuest, setSelectedQuest] = useState(quests[0].id);
+  const [selectedConversationJob, setSelectedConversationJob] = useState("");
   const [message, setMessage] = useState("");
 
   const dispatch = useCallback((input: EngineInput) => {
@@ -79,6 +81,14 @@ export default function App() {
   const latestAnimation = [...state.events]
     .reverse()
     .find((item) => item.type === "animation" && item.message !== "under-breath-muttering");
+  const activeConversationJob = conversationJobs.find(
+    (job) => job.id === state.conversationId,
+  );
+  const activeConversationQuestion =
+    activeConversationJob?.questions[state.conversationQuestion];
+  const eligibleConversationJobs = conversationJobs.filter((job) =>
+    job.moods.includes(state.mood),
+  );
   const activeScenario = (id: string) => {
     const scenario = scenarios.find((item) => item.id === id);
     if (!scenario) return;
@@ -125,9 +135,9 @@ export default function App() {
     <main className="app-shell">
       <header className="topbar">
         <div className="brand-lockup">
-          <div className="brand-mark">L</div>
           <div>
-            <p className="eyebrow"><span className="company-brand">LANTERN</span> // LIGHTWEIGHT UNSTABLE MANAGEMENT</p>
+            <LanternLogo />
+            <p className="eyebrow brand-caption">LUMEN // LIGHTWEIGHT UNSTABLE MANAGEMENT</p>
             <h1>LUMEN <span>Emulator</span></h1>
           </div>
         </div>
@@ -280,6 +290,107 @@ export default function App() {
           </div>
           <div className="control-footnote"><span className="live-dot" /> Every mock input enters the same event contract used by the future badge adapter.</div>
         </section>
+      </section>
+
+      <section className="panel conversation-panel">
+        <div className="panel-heading compact-heading">
+          <div>
+            <p className="eyebrow">TALK TO LUMEN · CONVERSATIONAL SIDE JOBS</p>
+            <h2>Small talk. Operational consequences.</h2>
+          </div>
+          <span className="scenario-count">Your answers shape his mood</span>
+        </div>
+        <div className="conversation-howto">
+          <span className="howto-step"><b>01</b> Pick a tiny conference job</span>
+          <span className="howto-arrow">→</span>
+          <span className="howto-step"><b>02</b> Choose what you say or do</span>
+          <span className="howto-arrow">→</span>
+          <span className="howto-step"><b>03</b> Watch LUMEN react</span>
+        </div>
+        {state.conversationStatus === "active" && activeConversationJob && activeConversationQuestion ? (
+          <div className="conversation-body">
+            <div className="conversation-jobline">
+              <span className="job-icon">✦</span>
+              <div>
+                <strong>{activeConversationJob.title}</strong>
+                <p>{activeConversationJob.brief}</p>
+              </div>
+              <span className="conversation-progress">
+                QUESTION {state.conversationQuestion + 1} / {activeConversationJob.questions.length}
+              </span>
+            </div>
+            <div className="chat-question">
+              <span className="chat-avatar">L</span>
+              <div><small>LUMEN <span>· {moodLabel.toUpperCase()}</span></small><p>{activeConversationQuestion.prompt}</p></div>
+            </div>
+            <div className="answer-list" role="group" aria-label="Choose your response">
+              {activeConversationQuestion.choices.map((choice, index) => (
+                <button
+                  className="answer-choice"
+                  key={choice.id}
+                  onClick={() => dispatch({
+                    type: "conversation",
+                    action: "answer",
+                    choiceId: choice.id,
+                  })}
+                >
+                  <span className="answer-key">{String.fromCharCode(65 + index)}</span>
+                  <span>{choice.label}</span>
+                  <span className="answer-arrow">↗</span>
+                </button>
+              ))}
+            </div>
+            {state.conversationResponse && (
+              <div className="chat-response" role="status">
+                <span className="chat-avatar lumen-avatar">L</span>
+                <div><small>LUMEN SAYS</small><p>{state.conversationResponse}</p></div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="conversation-start">
+            {state.conversationStatus === "complete" && activeConversationJob ? (
+              <div className="job-complete">
+                <span className="complete-check">✓</span>
+                <div>
+                  <strong>Job complete: {activeConversationJob.title}</strong>
+                  <p>{state.conversationResponse}</p>
+                  <small>+{activeConversationJob.reward} XP · LUMEN's {moodLabel.toLowerCase()} mood colored his responses.</small>
+                </div>
+              </div>
+            ) : (
+              <div className="job-intro">
+                <span className="chat-avatar">L</span>
+                <div><strong>{state.mood === "neglected" ? "Psst. I have a job for you." : state.mood === "purple" || state.mood === "chaotic" ? "I have a totally reasonable little assignment." : "Got a minute for a tiny conference job?"}</strong><p>Pick an answer on each turn. The same choice can earn a warm nod or a deeply suspicious look depending on LUMEN's current mood.</p></div>
+              </div>
+            )}
+            <div className="job-start-controls">
+              <select
+                aria-label="Choose a conversational job"
+                value={selectedConversationJob}
+                onChange={(event) => setSelectedConversationJob(event.target.value)}
+              >
+                <option value="">Surprise me with a mood-matched job</option>
+                {eligibleConversationJobs.map((job) => (
+                  <option value={job.id} key={job.id}>{job.title}</option>
+                ))}
+              </select>
+              <button
+                className="button button-conversation"
+                onClick={() => dispatch({
+                  type: "conversation",
+                  action: "start",
+                  jobId: eligibleConversationJobs.some((job) => job.id === selectedConversationJob)
+                    ? selectedConversationJob
+                    : undefined,
+                })}
+              >
+                {state.conversationStatus === "complete" ? "Give me another job" : "Ask LUMEN for a job"}
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="bottom-grid">

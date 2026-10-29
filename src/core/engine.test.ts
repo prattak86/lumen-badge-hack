@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dialogue } from "./content";
+import { conversationJobs, dialogue } from "./content";
 import { createInitialState, reduceLumen, replayInputs, restoreState } from "./engine";
 import type { EngineInput } from "./types";
 
@@ -104,5 +104,81 @@ describe("LUMEN behavioral engine", () => {
     const first = state.dialogue;
     state = reduceLumen(state, { type: "interact", kind: "touch" });
     expect(state.dialogue).not.toBe(first);
+  });
+
+  it("offers a multi-turn job and rewards the selected answers", () => {
+    let state = reduceLumen(createInitialState(), {
+      type: "conversation",
+      action: "start",
+      jobId: "incident-comms",
+    });
+    expect(state.conversationStatus).toBe("active");
+    expect(state.conversationQuestion).toBe(0);
+    state = reduceLumen(state, {
+      type: "conversation",
+      action: "answer",
+      choiceId: "check-impact",
+    });
+    expect(state.conversationQuestion).toBe(1);
+    expect(state.attributes.stability).toBe(84);
+    expect(state.conversationResponse).toContain("blast radius");
+    state = reduceLumen(state, {
+      type: "conversation",
+      action: "answer",
+      choiceId: "bring-lumen-coffee",
+    });
+    expect(state.conversationStatus).toBe("complete");
+    expect(state.attributes.xp).toBe(conversationJobs[0].reward);
+    expect(state.events.some((item) => item.message.includes("JOB COMPLETE"))).toBe(true);
+  });
+
+  it("changes conversational reactions by LUMEN's mood", () => {
+    let operational = reduceLumen(createInitialState(), {
+      type: "conversation",
+      action: "start",
+      jobId: "incident-comms",
+    });
+    operational = reduceLumen(operational, {
+      type: "conversation",
+      action: "answer",
+      choiceId: "check-impact",
+    });
+
+    let neglected = reduceLumen(createInitialState(), {
+      type: "setAttribute",
+      attribute: "resentment",
+      value: 30,
+    });
+    neglected = reduceLumen(neglected, {
+      type: "conversation",
+      action: "start",
+      jobId: "incident-comms",
+    });
+    neglected = reduceLumen(neglected, {
+      type: "conversation",
+      action: "answer",
+      choiceId: "check-impact",
+    });
+
+    expect(operational.conversationResponse).not.toBe(neglected.conversationResponse);
+    expect(neglected.conversationResponse).toContain("check-in");
+  });
+
+  it("preserves active conversational jobs in local saves and event replay", () => {
+    let state = reduceLumen(createInitialState(), {
+      type: "conversation",
+      action: "start",
+      jobId: "architecture-review",
+    });
+    state = reduceLumen(state, {
+      type: "conversation",
+      action: "answer",
+      choiceId: "trace-dependencies",
+    });
+    const restored = restoreState(JSON.parse(JSON.stringify(state)));
+    expect(restored?.conversationId).toBe("architecture-review");
+    expect(restored?.conversationQuestion).toBe(1);
+    expect(restored?.conversationStatus).toBe("active");
+    expect(replayInputs(state.inputHistory)).toEqual(state);
   });
 });

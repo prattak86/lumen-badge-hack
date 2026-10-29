@@ -36,11 +36,42 @@ export function Lantern({
       aria-label={`LUMEN the lantern, ${mood.replace("-", " ")} mood`}
     >
       <defs>
+        <linearGradient id="lantern-metal" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0" stopColor="#0b302d" />
+          <stop offset=".18" stopColor="#43b9a6" />
+          <stop offset=".42" stopColor="#126158" />
+          <stop offset=".68" stopColor="#45c3ad" />
+          <stop offset="1" stopColor="#092d2b" />
+        </linearGradient>
+        <linearGradient id="lantern-rim" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#8ce4cf" />
+          <stop offset=".35" stopColor="#2b8a7c" />
+          <stop offset=".7" stopColor="#164b45" />
+          <stop offset="1" stopColor="#70d7bd" />
+        </linearGradient>
+        <linearGradient id="lantern-base" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#58c7b0" />
+          <stop offset=".3" stopColor="#145d55" />
+          <stop offset=".75" stopColor="#0b3936" />
+          <stop offset="1" stopColor="#6bd1b8" />
+        </linearGradient>
         <radialGradient id="glass" cx="50%" cy="35%" r="70%">
-          <stop offset="0%" stopColor="#fff5c8" stopOpacity=".95" />
-          <stop offset="52%" stopColor={color.glow} stopOpacity=".42" />
-          <stop offset="100%" stopColor="#17201d" stopOpacity=".9" />
+          <stop offset="0%" stopColor="#fff8d9" stopOpacity=".98" />
+          <stop offset="24%" stopColor="#ffd880" stopOpacity=".82" />
+          <stop offset="53%" stopColor={color.glow} stopOpacity=".48" />
+          <stop offset="82%" stopColor="#153b35" stopOpacity=".64" />
+          <stop offset="100%" stopColor="#071c1b" stopOpacity=".96" />
         </radialGradient>
+        <radialGradient id="glass-reflection" cx="24%" cy="25%" r="72%">
+          <stop offset="0" stopColor="#fff" stopOpacity=".36" />
+          <stop offset=".28" stopColor="#d2fff3" stopOpacity=".13" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="flame-core" x1="0" x2="0" y1="1" y2="0">
+          <stop offset="0" stopColor="#ff7500" />
+          <stop offset=".55" stopColor="#ffb400" />
+          <stop offset="1" stopColor="#fff078" />
+        </linearGradient>
         <filter id="soft-glow" x="-80%" y="-80%" width="260%" height="260%">
           <feGaussianBlur stdDeviation="9" result="blur" />
           <feMerge>
@@ -48,20 +79,41 @@ export function Lantern({
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
+        <filter id="body-shadow" x="-40%" y="-30%" width="180%" height="190%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+          <feOffset dy="4" result="offset" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope=".45" />
+          </feComponentTransfer>
+          <feMerge>
+            <feMergeNode />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
       <ellipse className="lantern-shadow" cx="160" cy="210" rx="70" ry="12" fill="#050807" opacity=".58" />
-      <g className="lantern-body">
-        <path d="M121 67 L130 43 Q160 28 190 43 L199 67" fill="#164b45" stroke="#40bba9" strokeWidth="4" />
-        <path d="M129 67 Q160 55 191 67 L207 173 Q205 191 187 198 L133 198 Q115 191 113 173 Z" fill="#174c45" stroke="#55c9b2" strokeWidth="4" />
-        <path d="M132 78 Q160 68 188 78 L198 165 Q197 180 183 184 L137 184 Q123 180 122 165 Z" fill="url(#glass)" stroke="#9de0c9" strokeOpacity=".82" strokeWidth="3" />
-        <path d="M125 69 Q160 56 195 69 M116 175 Q160 190 204 175" fill="none" stroke="#56c4ad" strokeWidth="5" strokeLinecap="round" />
-        <path d="M142 49 Q160 40 178 49" fill="none" stroke="#102e2a" strokeWidth="5" strokeLinecap="round" />
+      <g className="lantern-body" filter="url(#body-shadow)">
+        <path d="M119 69 L125 64 L129 41 Q160 25 191 41 L195 64 L201 69 L196 75 L124 75 Z" fill="url(#lantern-rim)" stroke="#9ae7d1" strokeWidth="2" />
+        <path d="M124 68 Q160 54 196 68 L207 171 Q208 190 188 199 L132 199 Q112 190 113 171 Z" fill="url(#lantern-metal)" stroke="#9ae7d1" strokeWidth="3" />
+        <path d="M131 76 Q160 66 189 76 L199 164 Q200 180 183 187 L137 187 Q120 180 121 164 Z" fill="#061a19" opacity=".58" />
+        <path d="M132 78 Q160 68 188 78 L198 165 Q197 180 183 184 L137 184 Q123 180 122 165 Z" fill="url(#glass)" stroke="url(#lantern-rim)" strokeWidth="3" />
+        <path d="M132 78 Q160 68 188 78 L198 165 Q197 180 183 184 L137 184 Q123 180 122 165 Z" fill="url(#glass-reflection)" />
+        <path d="M126 72 Q160 59 194 72 M117 173 Q160 189 203 173" fill="none" stroke="url(#lantern-rim)" strokeWidth="6" strokeLinecap="round" />
+        <path d="M128 74 Q160 64 192 74 M120 170 Q160 184 200 170" fill="none" stroke="#c0ffeb" strokeOpacity=".4" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M139 47 Q160 36 181 47" fill="none" stroke="#062724" strokeWidth="7" strokeLinecap="round" />
+        <path d="M141 45 Q160 36 179 45" fill="none" stroke="#89dec9" strokeOpacity=".7" strokeWidth="2" strokeLinecap="round" />
+        <path d="M119 87 Q114 123 119 161" fill="none" stroke="#a3ffe2" strokeOpacity=".58" strokeWidth="2" strokeLinecap="round" />
+        <path d="M201 91 Q205 124 200 159" fill="none" stroke="#061d1a" strokeOpacity=".82" strokeWidth="3" strokeLinecap="round" />
+        <path d="M132 191 Q160 199 188 191 L186 203 Q160 211 134 203 Z" fill="url(#lantern-base)" stroke="#83dfc8" strokeWidth="2" />
+        <path d="M138 199 Q160 204 182 199" fill="none" stroke="#c0ffeb" strokeOpacity=".56" strokeWidth="2" />
+        <circle cx="124" cy="78" r="2" fill="#ffd166" /><circle cx="196" cy="78" r="2" fill="#ffd166" />
+        <circle cx="121" cy="171" r="2" fill="#ffc34c" /><circle cx="199" cy="171" r="2" fill="#ffc34c" />
         <path d="M160 42 L167 49 L160 56 L153 49 Z" fill="#ffb000" className="lantern-emblem" />
         <path className="side-gem side-gem-left" d="M124 90 L132 98 L124 106 L119 98 Z" fill="#ffb000" opacity=".9" />
         <path className="side-gem side-gem-right" d="M196 90 L201 98 L196 106 L188 98 Z" fill="#ff8a25" opacity=".9" />
         <path className="flame-halo" d="M160 163 C135 142 154 126 161 100 C174 120 186 133 171 163 Z" fill={color.glow} opacity=".35" filter="url(#soft-glow)" />
         <g className="flame">
-          <path d="M160 164 C141 148 156 131 160 110 C177 132 183 148 168 164 Z" fill={color.flame} />
+          <path d="M160 164 C141 148 156 131 160 110 C177 132 183 148 168 164 Z" fill={mood === "operational" || mood === "neglected" || mood === "fine" ? "url(#flame-core)" : color.flame} />
           <path d="M161 162 C153 151 164 141 164 131 C173 145 171 154 166 162 Z" fill="#fff3ba" opacity=".95" />
         </g>
         <g className="face">
@@ -87,7 +139,7 @@ export function Lantern({
           <path className="hand hand-left" d="M108 154 Q104 160 100 155 M108 154 Q112 161 115 155" />
           <path className="hand hand-right" d="M212 154 Q208 161 205 155 M212 154 Q216 160 220 154" />
         </g>
-        <path d="M142 198 L138 208 M178 198 L182 208" stroke="#87948d" strokeWidth="5" strokeLinecap="round" />
+        <path d="M142 198 L138 208 M178 198 L182 208" stroke="#2f9788" strokeWidth="5" strokeLinecap="round" />
         <path d="M133 210 Q160 217 187 210" fill="none" stroke="#40bba9" strokeWidth="5" strokeLinecap="round" />
       </g>
       <g className="sparkles" fill="#ffb000">

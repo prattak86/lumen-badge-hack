@@ -2,10 +2,25 @@
 
 ## Brand direction
 
-The emulator borrows the supplied Lantern brand's teal-and-amber palette:
-teal metalwork and interface accents with a warm amber flame and small
-diamond-shaped highlights. The lantern character is original SVG artwork; the
-company wordmark and logo files are not reproduced in the illustration.
+The emulator uses the supplied Lantern brand's teal-and-amber palette: teal
+metalwork and interface accents with a warm amber flame and diamond-shaped
+highlights. Its header features a Lantern wordmark lockup with an orbital
+shard-mark inspired by the supplied logo. The character is original SVG
+artwork.
+
+## Conversational jobs
+
+The Talk to LUMEN panel is the primary attendee flow: choose a short
+conference-themed job, read LUMEN's prompt, and choose one of the proposed
+responses. Follow-up questions continue the same scenario. LUMEN's reaction is
+selected from the current mood; answers can change resentment, stability,
+social battery, flame energy, or technical debt. Completing the job grants
+XP. The job bank is offline and data-driven in `src/core/content.ts`, and
+progress is part of the persisted/replayable state contract.
+
+The conference scenarios are fictional, low-stakes, and optional. They invite
+friendly conversation without requiring attendee information or disruptive
+actions.
 
 ## Expressions and movement
 

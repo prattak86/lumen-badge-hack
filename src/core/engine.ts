@@ -1,4 +1,4 @@
-import { dialogue, quests } from "./content";
+import { conversationJobs, dialogue, quests } from "./content";
 import type {
   Attribute,
   EngineInput,
@@ -47,6 +47,10 @@ export const DEFAULT_STATE: Omit<LumenState, "events" | "inputHistory"> = {
   mutter: null,
   activeQuest: null,
   questStatus: "idle",
+  conversationId: null,
+  conversationQuestion: 0,
+  conversationStatus: "idle",
+  conversationResponse: null,
   encounter: null,
 };
 
@@ -359,6 +363,75 @@ export function reduceLumen(previous: LumenState, input: EngineInput): LumenStat
         if (input.action === "complete") event(state, "animation", "QUEST CELEBRATION");
       }
       break;
+    case "conversation":
+      if (input.action === "start") {
+        const eligible = conversationJobs.filter((job) => job.moods.includes(state.mood));
+        const requested = input.jobId
+          ? conversationJobs.find(
+              (job) => job.id === input.jobId && job.moods.includes(state.mood),
+            )
+          : undefined;
+        const job = requested ?? choose(state, eligible.length ? eligible : conversationJobs);
+        state.conversationId = job.id;
+        state.conversationQuestion = 0;
+        state.conversationStatus = "active";
+        state.conversationResponse = null;
+        state.lastInteractionAt = state.nowMs;
+        state.dialogue = choose(state, [
+          `I've got a tiny job for you: ${job.title}.`,
+          `Quick briefing. Try not to make this a whole incident.`,
+          `A little conference-floor assignment. You in?`,
+        ]);
+        event(state, "conversation", `JOB OFFERED · ${job.title}`, state.mood);
+        event(state, "dialogue", `DIALOGUE · ${state.dialogue}`, state.mood);
+      } else if (state.conversationStatus === "active" && state.conversationId) {
+        const job = conversationJobs.find(
+          (item) => item.id === state.conversationId,
+        );
+        const question = job?.questions[state.conversationQuestion];
+        const choice = question?.choices.find((item) => item.id === input.choiceId);
+        if (!job || !question || !choice) break;
+
+        const responseMood = state.mood;
+        const response = choice.moodResponses?.[responseMood] ?? choice.response;
+        state.conversationResponse = response;
+        state.dialogue = response;
+        state.mutter =
+          responseMood === "chaotic"
+            ? "This is a fictional conference scenario. Please don't test it in production."
+            : null;
+        state.lastInteractionAt = state.nowMs;
+        for (const [attribute, delta] of Object.entries(choice.effects) as Array<
+          [keyof typeof choice.effects, number]
+        >) {
+          if (delta === undefined) continue;
+          const targetAttribute = attribute as Exclude<Attribute, "xp">;
+          state.attributes[targetAttribute] = clamp(
+            state.attributes[targetAttribute] + delta,
+          );
+          event(
+            state,
+            "attribute",
+            `${targetAttribute} ${delta > 0 ? "+" : ""}${delta}`,
+          );
+        }
+        event(state, "conversation", `ANSWER · ${choice.label}`, responseMood);
+        event(state, "dialogue", `LUMEN · ${response}`, responseMood);
+        state.conversationQuestion += 1;
+        const nextMood = deriveMood(state);
+        if (nextMood !== state.mood && !state.sequence) {
+          setMood(state, nextMood);
+        }
+        if (state.conversationQuestion >= job.questions.length) {
+          state.conversationQuestion = job.questions.length;
+          state.conversationStatus = "complete";
+          state.attributes.xp = clampXp(state.attributes.xp + job.reward);
+          state.level = Math.floor(state.attributes.xp / 100) + 1;
+          event(state, "conversation", `JOB COMPLETE · +${job.reward} XP`, state.mood);
+          event(state, "animation", "QUEST CELEBRATION");
+        }
+      }
+      break;
     case "encounter":
       if (input.action === "start") {
         state.encounter = input.id ?? "tabs-vs-spaces";
@@ -428,6 +501,34 @@ export function restoreState(value: unknown): LumenState | null {
       ? candidate.questStatus
       : "idle";
   state.encounter = typeof candidate.encounter === "string" ? candidate.encounter : null;
+  state.conversationId =
+    typeof candidate.conversationId === "string" &&
+    conversationJobs.some((job) => job.id === candidate.conversationId)
+      ? candidate.conversationId
+      : null;
+  const savedJob = conversationJobs.find((job) => job.id === state.conversationId);
+  state.conversationQuestion =
+    typeof candidate.conversationQuestion === "number" &&
+    Number.isInteger(candidate.conversationQuestion) &&
+    savedJob
+      ? Math.max(0, Math.min(savedJob.questions.length, candidate.conversationQuestion))
+      : 0;
+  state.conversationStatus =
+    (candidate.conversationStatus === "active" ||
+      candidate.conversationStatus === "complete") &&
+    savedJob
+      ? candidate.conversationStatus
+      : "idle";
+  if (
+    state.conversationStatus === "active" &&
+    state.conversationQuestion >= (savedJob?.questions.length ?? 0)
+  ) {
+    state.conversationStatus = "complete";
+  }
+  state.conversationResponse =
+    typeof candidate.conversationResponse === "string"
+      ? candidate.conversationResponse
+      : null;
   state.events = Array.isArray(candidate.events)
     ? candidate.events
         .filter(
@@ -483,6 +584,12 @@ function isEngineInput(value: unknown): value is EngineInput {
       return (
         ["start", "complete", "fail"].includes(input.action as string) &&
         (input.id === undefined || typeof input.id === "string")
+      );
+    case "conversation":
+      return (
+        ["start", "answer"].includes(input.action as string) &&
+        (input.jobId === undefined || typeof input.jobId === "string") &&
+        (input.choiceId === undefined || typeof input.choiceId === "string")
       );
     case "encounter":
       return (
